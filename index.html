@@ -252,89 +252,6 @@
     input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
     input[type=number] { -moz-appearance: textfield; }
 
-    /* ── Standings view ─────────────────────── */
-    .standings-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .standing-row {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 0.75rem 1rem;
-      display: grid;
-      grid-template-columns: 2rem 1fr auto;
-      align-items: center;
-      gap: 0.5rem;
-      border-left: 4px solid transparent;
-    }
-    .standing-row.rank-first { border-left-color: var(--primary); }
-    .standing-row.rank-last  { border-left-color: var(--danger); }
-    .standing-rank {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-    .standing-row.rank-first .standing-rank { color: var(--primary); }
-    .standing-row.rank-last  .standing-rank { color: var(--danger); }
-    .standing-score {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .standing-row.rank-first .standing-score { color: var(--primary); }
-    .standing-row.rank-last  .standing-score { color: var(--danger); }
-
-    /* ── Round history ─────────────────────── */
-    .history-toggle-btn {
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.875rem;
-      width: auto;
-      min-height: 32px;
-      padding: 0.25rem 0;
-      text-decoration: underline;
-      text-align: left;
-    }
-    .history-toggle-btn:hover { color: var(--text); background: transparent; }
-
-    .history-wrapper {
-      overflow-x: auto;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-    }
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.875rem;
-    }
-    .history-table th,
-    .history-table td {
-      padding: 0.5rem 0.75rem;
-      text-align: right;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    .history-table th:first-child,
-    .history-table td:first-child { text-align: left; }
-    .history-table th {
-      background: var(--bg);
-      font-weight: 600;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .history-table tr:last-child td { border-bottom: none; }
-    .history-table .totals-row td {
-      font-weight: 700;
-      border-top: 2px solid var(--border);
-    }
-    .history-table .totals-row td:first-child { color: var(--text-muted); }
-
     /* ── Level info in round entry ─────────── */
     .player-level-info {
       font-size: 0.8rem;
@@ -356,26 +273,6 @@
       accent-color: var(--primary);
       cursor: pointer;
       flex-shrink: 0;
-    }
-
-    /* ── Level info in standings ────────────── */
-    .standing-name-group {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-    .standing-name {
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .standing-level {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     /* ── Nivå-oversikt section ──────────────── */
@@ -500,45 +397,17 @@
   <div id="view-round" class="view">
     <div class="app-header">
       <h1>11-ern</h1>
-      <div class="header-right">
-        <span class="round-badge" id="round-badge">Runde 1</span>
-        <button class="btn-secondary" id="btn-view-standings">Stilling</button>
-      </div>
+      <span class="round-badge" id="round-badge">Runde 1</span>
     </div>
     <div class="view-main">
       <p class="section-label">Poeng denne runden</p>
       <div class="player-score-list" id="player-score-list"></div>
       <div id="round-submit-error" class="field-error" style="display:none"></div>
       <button class="btn-primary" id="btn-submit-round">Registrer runde</button>
+      <div id="level-overview-section"></div>
     </div>
     <div class="view-footer">
       <button class="btn-ghost" id="btn-new-game-round">Nytt spill</button>
-    </div>
-  </div>
-
-  <!-- VIEW 3: Standings -->
-  <div id="view-standings" class="view">
-    <div class="app-header">
-      <div>
-        <h1>11-ern</h1>
-        <p class="subtitle" id="standings-subtitle">Stilling</p>
-      </div>
-    </div>
-    <div class="view-main">
-      <ol class="standings-list" id="standings-list"></ol>
-
-      <div id="level-overview-section"></div>
-
-      <div id="history-section" style="display:none">
-        <button class="history-toggle-btn" id="btn-toggle-history">Vis rundehistorikk</button>
-        <div class="history-wrapper" id="history-wrapper" style="display:none">
-          <table class="history-table" id="history-table"></table>
-        </div>
-      </div>
-    </div>
-    <div class="view-footer">
-      <button class="btn-primary" id="btn-next-round">Neste runde</button>
-      <button class="btn-ghost" id="btn-new-game-standings">Nytt spill</button>
     </div>
   </div>
 
@@ -613,13 +482,6 @@
     );
   }
 
-  function getSortedStandings() {
-    const totals = getTotals();
-    return state.players
-      .map((p, i) => ({ name: p.name, total: totals[i], idx: i }))
-      .sort((a, b) => a.total - b.total);
-  }
-
   // ── Navigation ──────────────────────────────────────
   function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -662,10 +524,15 @@
     document.getElementById('round-submit-error').style.display = 'none';
 
     const totals = getTotals();
+    const sortedIndices = state.players
+      .map((_, i) => i)
+      .sort((a, b) => totals[a] - totals[b]);
+
     const list = document.getElementById('player-score-list');
     list.innerHTML = '';
 
-    state.players.forEach((p, i) => {
+    sortedIndices.forEach(i => {
+      const p = state.players[i];
       const row = document.createElement('div');
       row.className = 'player-score-row';
 
@@ -693,6 +560,7 @@
       clearedCheck.type = 'checkbox';
       clearedCheck.className = 'level-cleared-check';
       clearedCheck.id = clearedId;
+      clearedCheck.dataset.playerIndex = i;
       const clearedText = document.createTextNode('Klarte nivået');
       clearedLabel.appendChild(clearedCheck);
       clearedLabel.appendChild(clearedText);
@@ -716,6 +584,8 @@
       list.appendChild(row);
     });
 
+    renderLevelOverview();
+
     // Keyboard navigation: Enter advances to next input or submits
     const inputs = list.querySelectorAll('.score-input');
     inputs.forEach((input, i) => {
@@ -729,112 +599,6 @@
     });
 
     if (inputs.length > 0) inputs[0].focus();
-  }
-
-  // ── Render: Standings ───────────────────────────────
-  function renderStandings() {
-    const rounds = state.rounds.length;
-    document.getElementById('standings-subtitle').textContent =
-      rounds === 0 ? 'Ingen runder ennå' : `Etter runde ${rounds}`;
-
-    const sorted = getSortedStandings();
-    const list = document.getElementById('standings-list');
-    list.innerHTML = '';
-
-    sorted.forEach((entry, pos) => {
-      const li = document.createElement('li');
-      li.className = 'standing-row';
-      if (pos === 0) li.classList.add('rank-first');
-      if (pos === sorted.length - 1 && sorted.length > 1) li.classList.add('rank-last');
-
-      const rankEl = document.createElement('span');
-      rankEl.className = 'standing-rank';
-      rankEl.textContent = pos + 1;
-
-      const nameGroup = document.createElement('div');
-      nameGroup.className = 'standing-name-group';
-      const nameEl = document.createElement('span');
-      nameEl.className = 'standing-name';
-      nameEl.textContent = entry.name;
-      const playerLevel = state.playerLevels[entry.idx] ?? 1;
-      const lvl = LEVELS[playerLevel - 1];
-      const levelEl = document.createElement('span');
-      levelEl.className = 'standing-level';
-      levelEl.textContent = `Nivå ${lvl.n}: ${lvl.desc}`;
-      nameGroup.appendChild(nameEl);
-      nameGroup.appendChild(levelEl);
-
-      const scoreEl = document.createElement('span');
-      scoreEl.className = 'standing-score';
-      scoreEl.textContent = entry.total;
-
-      li.appendChild(rankEl);
-      li.appendChild(nameGroup);
-      li.appendChild(scoreEl);
-      list.appendChild(li);
-    });
-
-    // Nivå-oversikt
-    renderLevelOverview();
-
-    // Round history
-    const historySection = document.getElementById('history-section');
-    if (rounds === 0) {
-      historySection.style.display = 'none';
-      return;
-    }
-    historySection.style.display = '';
-    renderHistoryTable();
-  }
-
-  function renderHistoryTable() {
-    const table = document.getElementById('history-table');
-    table.innerHTML = '';
-
-    // Header row
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    const thRound = document.createElement('th');
-    thRound.textContent = 'Runde';
-    headerRow.appendChild(thRound);
-    state.players.forEach(p => {
-      const th = document.createElement('th');
-      th.textContent = p.name;
-      headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    // Body rows
-    const tbody = document.createElement('tbody');
-    state.rounds.forEach((round, ri) => {
-      const tr = document.createElement('tr');
-      const tdLabel = document.createElement('td');
-      tdLabel.textContent = ri + 1;
-      tr.appendChild(tdLabel);
-      round.forEach(score => {
-        const td = document.createElement('td');
-        td.textContent = score;
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    });
-
-    // Totals row
-    const totals = getTotals();
-    const trTotals = document.createElement('tr');
-    trTotals.className = 'totals-row';
-    const tdTotalLabel = document.createElement('td');
-    tdTotalLabel.textContent = 'Total';
-    trTotals.appendChild(tdTotalLabel);
-    totals.forEach(t => {
-      const td = document.createElement('td');
-      td.textContent = t;
-      trTotals.appendChild(td);
-    });
-    tbody.appendChild(trTotals);
-
-    table.appendChild(tbody);
   }
 
   function renderLevelOverview() {
@@ -883,7 +647,7 @@
     section.appendChild(container);
   }
 
-  const renders = { setup: renderSetup, round: renderRound, standings: renderStandings };
+  const renders = { setup: renderSetup, round: renderRound };
 
   // ── Actions ─────────────────────────────────────────
   function startGame() {
@@ -912,10 +676,11 @@
   function submitRound() {
     const inputs = document.querySelectorAll('#player-score-list .score-input');
     const errorEl = document.getElementById('round-submit-error');
-    const scores = [];
+    const scores = new Array(state.players.length);
     let valid = true;
 
     inputs.forEach(input => {
+      const pi = parseInt(input.dataset.playerIndex, 10);
       const raw = input.value.trim();
       if (raw === '') {
         input.classList.add('error');
@@ -927,7 +692,7 @@
           valid = false;
         } else {
           input.classList.remove('error');
-          scores.push(n);
+          scores[pi] = n;
         }
       }
     });
@@ -942,15 +707,15 @@
     state.rounds.push(scores);
 
     // Advance levels for players who cleared their level
-    const clearedChecks = document.querySelectorAll('.level-cleared-check');
-    clearedChecks.forEach((cb, i) => {
-      if (cb.checked && (state.playerLevels[i] ?? 1) < LEVELS.length) {
-        state.playerLevels[i]++;
+    document.querySelectorAll('.level-cleared-check').forEach(cb => {
+      const pi = parseInt(cb.dataset.playerIndex, 10);
+      if (cb.checked && (state.playerLevels[pi] ?? 1) < LEVELS.length) {
+        state.playerLevels[pi]++;
       }
     });
 
     saveState();
-    showView('standings');
+    showView('round');
   }
 
   function resetGame() {
@@ -991,26 +756,8 @@
     // Round: submit
     document.getElementById('btn-submit-round').addEventListener('click', submitRound);
 
-    // Round: view standings without submitting
-    document.getElementById('btn-view-standings').addEventListener('click', () => showView('standings'));
-
     // Round: new game
     document.getElementById('btn-new-game-round').addEventListener('click', showConfirmModal);
-
-    // Standings: next round
-    document.getElementById('btn-next-round').addEventListener('click', () => showView('round'));
-
-    // Standings: new game
-    document.getElementById('btn-new-game-standings').addEventListener('click', showConfirmModal);
-
-    // Standings: history toggle
-    document.getElementById('btn-toggle-history').addEventListener('click', () => {
-      const wrapper = document.getElementById('history-wrapper');
-      const btn = document.getElementById('btn-toggle-history');
-      const hidden = wrapper.style.display === 'none';
-      wrapper.style.display = hidden ? '' : 'none';
-      btn.textContent = hidden ? 'Skjul rundehistorikk' : 'Vis rundehistorikk';
-    });
 
     // Modal
     document.getElementById('modal-yes').addEventListener('click', () => {
@@ -1033,7 +780,8 @@
       if (state.players.length >= MIN_PLAYERS) {
         state.playerCount = state.players.length;
       }
-      showView(state.view || 'setup');
+      const savedView = state.view === 'standings' ? 'round' : (state.view || 'setup');
+      showView(savedView);
     } else {
       showView('setup');
     }
