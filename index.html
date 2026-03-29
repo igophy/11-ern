@@ -61,6 +61,12 @@
       opacity: 0.8;
     }
     .header-right { display: flex; align-items: center; gap: 0.5rem; }
+    .version-badge {
+      font-size: 0.7rem;
+      opacity: 0.6;
+      letter-spacing: 0.03em;
+      color: #fff;
+    }
 
     /* ── Main content ─────────────────────── */
     .view-main {
@@ -375,6 +381,7 @@
         <h1>11-ern</h1>
         <p class="subtitle">Nytt spill</p>
       </div>
+      <span class="version-badge" id="version-display"></span>
     </div>
     <div class="view-main">
       <div>
@@ -397,7 +404,10 @@
   <div id="view-round" class="view">
     <div class="app-header">
       <h1>11-ern</h1>
-      <span class="round-badge" id="round-badge">Runde 1</span>
+      <div class="header-right">
+        <span class="round-badge" id="round-badge">Runde 1</span>
+        <span class="version-badge" id="version-display-round"></span>
+      </div>
     </div>
     <div class="view-main">
       <p class="section-label">Poeng denne runden</p>
@@ -426,6 +436,7 @@
 
 <script>
   // ── Constants ───────────────────────────────────────
+  const VERSION = '1.2.0';
   const STORAGE_KEY = '11ern_state';
   const MIN_PLAYERS = 2;
   const MAX_PLAYERS = 8;
@@ -772,6 +783,8 @@
 
   // ── Init ─────────────────────────────────────────────
   function init() {
+    document.getElementById('version-display').textContent = `v${VERSION}`;
+    document.getElementById('version-display-round').textContent = `v${VERSION}`;
     bindEvents();
     const saved = loadSavedState();
     if (saved) {
