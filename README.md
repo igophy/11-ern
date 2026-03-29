@@ -43,6 +43,7 @@ En selvinneholdt HTML-app (ingen avhengigheter, ingen byggsteg) for å registrer
 | v1.3.0 | Rundehistorikk-panel og redigering av tidligere runder |
 | v1.4.0 | PWA-støtte: manifest, service worker og offline-caching |
 | v1.5.0 | Rangering i rundebildet, slett runde og vinnerskjerm |
+| v1.6.0 | Automatisk oppdateringsvarsel ved ny versjon |
 
 ## Bruk
 

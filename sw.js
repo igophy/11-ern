@@ -1,11 +1,15 @@
-const CACHE = '11ern-v1.5.0';
+const CACHE = '11ern-v1.6.0';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(ASSETS))
   );
-  self.skipWaiting();
+  // Ikke kall skipWaiting() — ny SW venter til brukeren godtar oppdateringen
+});
+
+self.addEventListener('message', e => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
