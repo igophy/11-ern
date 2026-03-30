@@ -45,6 +45,7 @@ En selvinneholdt HTML-app (ingen avhengigheter, ingen byggsteg) for å registrer
 | v1.5.0 | Rangering i rundebildet, slett runde og vinnerskjerm |
 | v1.6.0 | Automatisk oppdateringsvarsel ved ny versjon |
 | v2.0.0 | Spillhistorikk og statistikk per spiller |
+| v2.1.0 | Mørkt tema med automatisk systemdeteksjon og manuell toggle |
 
 ## Bruk
 

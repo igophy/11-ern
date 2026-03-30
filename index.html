@@ -22,6 +22,29 @@
       --radius-sm: 8px;
     }
 
+    [data-theme="dark"] {
+      --bg: #121A12;
+      --surface: #1C261C;
+      --primary: #3A7A3D;
+      --primary-dark: #2C5F2E;
+      --danger: #C04040;
+      --text: #EDE9E0;
+      --text-muted: #8A8A7A;
+      --border: #2E3E2E;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #121A12;
+        --surface: #1C261C;
+        --primary: #3A7A3D;
+        --primary-dark: #2C5F2E;
+        --danger: #C04040;
+        --text: #EDE9E0;
+        --text-muted: #8A8A7A;
+        --border: #2E3E2E;
+      }
+    }
+
     html, body {
       height: 100%;
       background: var(--bg);
@@ -589,6 +612,20 @@
       align-self: flex-start;
     }
     .btn-clear-history:hover { background: #fdf0f0; }
+    [data-theme="dark"] .btn-clear-history:hover { background: #2a1a1a; }
+
+    /* ── Theme toggle button ────────────────── */
+    .btn-theme-toggle {
+      background: transparent;
+      color: #fff;
+      font-size: 1.1rem;
+      min-height: 32px;
+      width: 32px;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      line-height: 1;
+    }
+    .btn-theme-toggle:hover { background: rgba(255,255,255,0.15); }
 
     /* ── Update banner ──────────────────────── */
     #update-banner {
@@ -633,7 +670,10 @@
         <h1>11-ern</h1>
         <p class="subtitle">Nytt spill</p>
       </div>
-      <span class="version-badge" id="version-display"></span>
+      <div class="header-right">
+        <button class="btn-theme-toggle" id="btn-theme-setup" aria-label="Bytt tema">🌙</button>
+        <span class="version-badge" id="version-display"></span>
+      </div>
     </div>
     <div class="view-main">
       <div>
@@ -661,6 +701,7 @@
     <div class="app-header">
       <h1>11-ern</h1>
       <div class="header-right">
+        <button class="btn-theme-toggle" id="btn-theme-round" aria-label="Bytt tema">🌙</button>
         <span class="round-badge" id="round-badge">Runde 1</span>
         <span class="version-badge" id="version-display-round"></span>
       </div>
@@ -727,9 +768,30 @@
 
 <script>
   // ── Constants ───────────────────────────────────────
-  const VERSION = '2.0.0';
+  const VERSION = '2.1.0';
   const STORAGE_KEY = '11ern_state';
   const HISTORY_KEY = '11ern_history';
+  const THEME_KEY = '11ern_theme';
+
+  // ── Theme ────────────────────────────────────────────
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = (saved ? saved === 'dark' : prefersDark) ? 'dark' : 'light';
+  }
+
+  function applyTheme(dark) {
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    const icon = dark ? '☀️' : '🌙';
+    document.querySelectorAll('.btn-theme-toggle').forEach(btn => btn.textContent = icon);
+    try { localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light'); } catch {}
+  }
+
+  function toggleTheme() {
+    applyTheme(document.documentElement.dataset.theme !== 'dark');
+  }
+
+  initTheme(); // Kjør tidlig for å unngå lysglimt
   const MIN_PLAYERS = 2;
   const MAX_PLAYERS = 8;
   const LEVELS = [
@@ -1329,6 +1391,11 @@
 
   // ── Event Binding ────────────────────────────────────
   function bindEvents() {
+    // Theme toggle
+    document.querySelectorAll('.btn-theme-toggle').forEach(btn =>
+      btn.addEventListener('click', toggleTheme)
+    );
+
     // Setup: stepper
     document.getElementById('players-dec').addEventListener('click', () => {
       if (state.playerCount > MIN_PLAYERS) {
@@ -1393,6 +1460,7 @@
   function init() {
     document.getElementById('version-display').textContent = `v${VERSION}`;
     document.getElementById('version-display-round').textContent = `v${VERSION}`;
+    applyTheme(document.documentElement.dataset.theme === 'dark');
     bindEvents();
     const saved = loadSavedState();
     if (saved) {
