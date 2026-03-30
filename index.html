@@ -511,6 +511,38 @@
     .winner-emoji { font-size: 3rem; margin-bottom: 0.5rem; }
     .winner-name  { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
     .winner-sub   { font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    /* ── Update banner ──────────────────────── */
+    #update-banner {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary-dark);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      z-index: 200;
+      max-width: calc(480px - 2.5rem);
+      width: calc(100% - 2.5rem);
+    }
+    #update-banner span { flex: 1; }
+    #btn-update-app {
+      background: #fff;
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 0.875rem;
+      min-height: 36px;
+      padding: 0.375rem 0.875rem;
+      border-radius: var(--radius-sm);
+      width: auto;
+    }
+    #btn-update-app:hover { background: var(--bg); }
   </style>
 </head>
 <body>
@@ -594,6 +626,12 @@
   </div>
 </div>
 
+<!-- Update banner -->
+<div id="update-banner" style="display:none" role="alert" aria-live="assertive">
+  <span>Ny versjon tilgjengelig</span>
+  <button id="btn-update-app">Oppdater</button>
+</div>
+
 <!-- Winner modal -->
 <div class="modal-overlay" id="modal-winner" role="dialog" aria-modal="true">
   <div class="modal-box" style="text-align:center">
@@ -607,7 +645,7 @@
 
 <script>
   // ── Constants ───────────────────────────────────────
-  const VERSION = '1.5.0';
+  const VERSION = '1.6.0';
   const STORAGE_KEY = '11ern_state';
   const MIN_PLAYERS = 2;
   const MAX_PLAYERS = 8;
@@ -1180,7 +1218,31 @@
   }
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      if (reg.waiting) showUpdateBanner(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner(newSW);
+          }
+        });
+      });
+    }).catch(() => {});
+
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!reloading) { reloading = true; window.location.reload(); }
+    });
+  }
+
+  function showUpdateBanner(sw) {
+    const banner = document.getElementById('update-banner');
+    banner.style.display = 'flex';
+    document.getElementById('btn-update-app').addEventListener('click', () => {
+      banner.style.display = 'none';
+      sw.postMessage('skipWaiting');
+    }, { once: true });
   }
 
   document.addEventListener('DOMContentLoaded', init);
