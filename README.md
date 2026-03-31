@@ -4,18 +4,22 @@ Registrering av poeng i kortspillet 11-ern.
 
 ## Om appen
 
-En selvinneholdt HTML-app (ingen avhengigheter, ingen byggsteg) for å registrere poeng og følge nivåprogresjonen i kortspillet 11-ern. Åpne `index.html` direkte i en nettleser — fungerer offline og på mobil.
+En selvinneholdt HTML-app (ingen avhengigheter, ingen byggsteg) for å registrere poeng og følge nivåprogresjonen i kortspillet 11-ern. Kan installeres som PWA på mobil og fungerer offline.
 
 ## Funksjonalitet
 
 - **Spilleroppsett** — velg antall spillere (2–8) og skriv inn navn
-- **Runderegistrering** — legg inn poeng per spiller for hver runde; spillere sorteres automatisk fra laveste til høyeste totalpoeng
+- **Runderegistrering** — legg inn poeng per spiller; spillere sorteres automatisk fra laveste til høyeste totalpoeng med rangbadge (1., 2., 3.)
 - **Nivåsystem** — 11 nivåer med stigende vanskelighetsgrad; huk av «Klarte nivået» for å rykke opp
 - **Nivåoversikt** — viser alle spilleres nåværende nivå sortert fra høyeste til laveste
+- **Vinnerskjerm** — vises automatisk når en spiller fullfører alle 11 nivåer
 - **Rundehistorikk** — kollapsbart panel med alle registrerte runder; vis hvem som klarte nivået per runde
-- **Rediger runde** — korriger poeng eller «Klarte nivået» for en tidligere runde; nivåer beregnes automatisk på nytt
-- **Persistering** — tilstand lagres i `localStorage` slik at spillet overlever en sideoppdatering
-- **Nytt spill** — tilbakestill med bekreftelsesdialog
+- **Rediger / slett runde** — korriger eller fjern en tidligere runde; nivåer beregnes automatisk på nytt
+- **Spillhistorikk** — avsluttede spill lagres og vises med statistikk (seire, snittpoeng) på oppstartsskjermen
+- **Mørkt tema** — følger systeminnstillingen automatisk; kan overstyres med 🌙/☀️-knapp
+- **Oppdateringsvarsel** — banner vises automatisk når ny versjon er tilgjengelig
+- **PWA** — installerbar på mobil, fungerer offline
+- **Persistering** — tilstand lagres i `localStorage`
 
 ## Nivåer
 
@@ -50,4 +54,4 @@ En selvinneholdt HTML-app (ingen avhengigheter, ingen byggsteg) for å registrer
 
 ## Bruk
 
-Åpne `index.html` i en nettleser — ingen installasjon nødvendig.
+Åpne `index.html` i en nettleser, eller installer appen via «Legg til på hjemskjerm» i mobilnettleseren.
