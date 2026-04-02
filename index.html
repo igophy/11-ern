@@ -22,6 +22,17 @@
       --radius-sm: 8px;
     }
 
+    /* ── Color themes ───────────────────────── */
+    [data-color="blue"]   { --primary: #1A5276; --primary-dark: #154360; }
+    [data-color="purple"] { --primary: #6C3483; --primary-dark: #512E5F; }
+    [data-color="teal"]   { --primary: #0E6655; --primary-dark: #0B5345; }
+    [data-color="red"]    { --primary: #922B21; --primary-dark: #7B241C; }
+
+    [data-theme="dark"][data-color="blue"]   { --primary: #2980B9; --primary-dark: #1A5276; }
+    [data-theme="dark"][data-color="purple"] { --primary: #8E44AD; --primary-dark: #6C3483; }
+    [data-theme="dark"][data-color="teal"]   { --primary: #17A589; --primary-dark: #0E6655; }
+    [data-theme="dark"][data-color="red"]    { --primary: #C0392B; --primary-dark: #922B21; }
+
     [data-theme="dark"] {
       --bg: #121A12;
       --surface: #1C261C;
@@ -640,8 +651,8 @@
     .btn-clear-history:hover { background: #fdf0f0; }
     [data-theme="dark"] .btn-clear-history:hover { background: #2a1a1a; }
 
-    /* ── Theme toggle button ────────────────── */
-    .btn-theme-toggle {
+    /* ── Settings button ────────────────────── */
+    .btn-settings {
       background: transparent;
       color: #fff;
       font-size: 1.1rem;
@@ -651,7 +662,40 @@
       border-radius: var(--radius-sm);
       line-height: 1;
     }
-    .btn-theme-toggle:hover { background: rgba(255,255,255,0.15); }
+    .btn-settings:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── Settings modal ─────────────────────── */
+    .settings-section { display: flex; flex-direction: column; gap: 0.5rem; }
+    .settings-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .theme-btn {
+      flex: 1;
+      background: var(--bg);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      min-height: 36px;
+      font-weight: 500;
+    }
+    .theme-btn.active { border-color: var(--primary); color: var(--primary); font-weight: 700; }
+    .color-swatches { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .color-swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      flex-shrink: 0;
+      outline: none;
+    }
+    .color-swatch.active { border-color: var(--text); }
+    .settings-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .settings-toggle-label input { width: 18px; height: 18px; accent-color: var(--primary); }
 
     /* ── Update banner ──────────────────────── */
     #update-banner {
@@ -697,7 +741,7 @@
         <p class="subtitle">Nytt spill</p>
       </div>
       <div class="header-right">
-        <button class="btn-theme-toggle" id="btn-theme-setup" aria-label="Bytt tema">🌙</button>
+        <button class="btn-settings" aria-label="Innstillinger">⚙️</button>
         <span class="version-badge" id="version-display"></span>
       </div>
     </div>
@@ -727,7 +771,7 @@
     <div class="app-header">
       <h1>11-ern</h1>
       <div class="header-right">
-        <button class="btn-theme-toggle" id="btn-theme-round" aria-label="Bytt tema">🌙</button>
+        <button class="btn-settings" aria-label="Innstillinger">⚙️</button>
         <span class="round-badge" id="round-badge">Runde 1</span>
         <span class="version-badge" id="version-display-round"></span>
       </div>
@@ -792,32 +836,103 @@
   </div>
 </div>
 
+<!-- Settings modal -->
+<div class="modal-overlay" id="modal-settings" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <p style="font-weight:700;font-size:1.1rem">Innstillinger</p>
+
+    <div class="settings-section">
+      <p class="section-label">Tema</p>
+      <div class="settings-row">
+        <button class="theme-btn" data-theme-val="light">Lyst</button>
+        <button class="theme-btn" data-theme-val="auto">Auto</button>
+        <button class="theme-btn" data-theme-val="dark">Mørkt</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <p class="section-label">Farge</p>
+      <div class="color-swatches">
+        <button class="color-swatch" data-color-val="green"  style="background:#2C5F2E" aria-label="Grønn"></button>
+        <button class="color-swatch" data-color-val="blue"   style="background:#1A5276" aria-label="Blå"></button>
+        <button class="color-swatch" data-color-val="purple" style="background:#6C3483" aria-label="Lilla"></button>
+        <button class="color-swatch" data-color-val="teal"   style="background:#0E6655" aria-label="Turkis"></button>
+        <button class="color-swatch" data-color-val="red"    style="background:#922B21" aria-label="Rød"></button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <p class="section-label">Juksregistrering</p>
+      <label class="settings-toggle-label">
+        <input type="checkbox" id="settings-cheat-toggle">
+        Aktiver juksregistrering
+      </label>
+      <div id="settings-cheat-points-row" class="settings-row" style="display:none">
+        <span>Straffepoeng:</span>
+        <input type="number" id="settings-cheat-points" min="1" max="999" value="10"
+               style="width:70px;text-align:center">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modal-settings-close">Lukk</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ── Constants ───────────────────────────────────────
-  const VERSION = '2.3.0';
+  const VERSION = '2.4.0';
   const STORAGE_KEY = '11ern_state';
   const HISTORY_KEY = '11ern_history';
-  const THEME_KEY = '11ern_theme';
+  const SETTINGS_KEY = '11ern_settings';
+
+  // ── Settings ─────────────────────────────────────────
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      const s = raw ? JSON.parse(raw) : {};
+      // Migrate old theme preference
+      if (!s.theme) {
+        const oldTheme = localStorage.getItem('11ern_theme');
+        s.theme = oldTheme ?? 'auto';
+      }
+      return {
+        theme: s.theme ?? 'auto',
+        color: s.color ?? 'green',
+        cheatEnabled: s.cheatEnabled ?? false,
+        cheatPoints: s.cheatPoints ?? 10,
+      };
+    } catch { return { theme: 'auto', color: 'green', cheatEnabled: false, cheatPoints: 10 }; }
+  }
+
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {}
+  }
+
+  let settings = loadSettings();
 
   // ── Theme ────────────────────────────────────────────
   function initTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.dataset.theme = (saved ? saved === 'dark' : prefersDark) ? 'dark' : 'light';
+    const dark = settings.theme === 'dark' || (settings.theme === 'auto' && prefersDark);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    document.documentElement.dataset.color = settings.color;
   }
 
   function applyTheme(dark) {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    const icon = dark ? '☀️' : '🌙';
-    document.querySelectorAll('.btn-theme-toggle').forEach(btn => btn.textContent = icon);
-    try { localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light'); } catch {}
+    settings.theme = dark ? 'dark' : 'light';
+    saveSettings();
   }
 
-  function toggleTheme() {
-    applyTheme(document.documentElement.dataset.theme !== 'dark');
+  function applyColor(color) {
+    document.documentElement.dataset.color = color;
+    settings.color = color;
+    saveSettings();
   }
 
-  initTheme(); // Kjør tidlig for å unngå lysglimt
+  initTheme();
   const MIN_PLAYERS = 2;
   const MAX_PLAYERS = 8;
   const LEVELS = [
@@ -973,36 +1088,6 @@
       return;
     }
 
-    // Per-spiller statistikk
-    const playerStats = {};
-    history.forEach(game => {
-      game.players.forEach((name, i) => {
-        if (!playerStats[name]) playerStats[name] = { games: 0, wins: 0, totalScore: 0 };
-        playerStats[name].games++;
-        playerStats[name].totalScore += game.finalScores[i] ?? 0;
-        if (game.winners.includes(name)) playerStats[name].wins++;
-      });
-    });
-
-    const rows = Object.entries(playerStats)
-      .sort((a, b) => b[1].wins - a[1].wins || a[0].localeCompare(b[0]));
-
-    const table = document.createElement('table');
-    table.className = 'stats-table';
-    table.innerHTML = `
-      <thead><tr>
-        <th>Spiller</th><th>Spill</th><th>Seire</th><th>Snittpoeng</th>
-      </tr></thead>
-      <tbody>${rows.map(([name, s]) => `
-        <tr>
-          <td>${escHtml(name)}</td>
-          <td>${s.games}</td>
-          <td>${s.wins}</td>
-          <td>${(s.totalScore / s.games).toFixed(1)}</td>
-        </tr>`).join('')}
-      </tbody>`;
-    content.appendChild(table);
-
     // Siste 5 spill
     const recentLabel = document.createElement('div');
     recentLabel.className = 'section-label';
@@ -1117,6 +1202,21 @@
       info.appendChild(nameEl);
       info.appendChild(totalEl);
       info.appendChild(clearedLabel);
+
+      if (settings.cheatEnabled) {
+        const cheatId = `cheat-${i}`;
+        const cheatLabel = document.createElement('label');
+        cheatLabel.className = 'level-cleared-label';
+        cheatLabel.htmlFor = cheatId;
+        const cheatCheck = document.createElement('input');
+        cheatCheck.type = 'checkbox';
+        cheatCheck.className = 'cheat-check';
+        cheatCheck.id = cheatId;
+        cheatCheck.dataset.playerIndex = i;
+        cheatLabel.appendChild(cheatCheck);
+        cheatLabel.appendChild(document.createTextNode(`Juks (+${settings.cheatPoints} poeng)`));
+        info.appendChild(cheatLabel);
+      }
 
       const input = document.createElement('input');
       input.type = 'number';
@@ -1294,6 +1394,12 @@
       clearedThisRound[parseInt(cb.dataset.playerIndex, 10)] = cb.checked;
     });
 
+    if (settings.cheatEnabled) {
+      document.querySelectorAll('.cheat-check').forEach(cb => {
+        if (cb.checked) scores[parseInt(cb.dataset.playerIndex, 10)] += settings.cheatPoints;
+      });
+    }
+
     const levelsBeforeSubmit = [...state.playerLevels];
 
     state.rounds.push(scores);
@@ -1428,6 +1534,25 @@
     document.getElementById('modal-winner').classList.add('open');
   }
 
+  // ── Settings modal ───────────────────────────────────
+  function openSettingsModal() {
+    document.querySelectorAll('.theme-btn').forEach(btn =>
+      btn.classList.toggle('active', btn.dataset.themeVal === settings.theme)
+    );
+    document.querySelectorAll('.color-swatch').forEach(btn =>
+      btn.classList.toggle('active', btn.dataset.colorVal === settings.color)
+    );
+    document.getElementById('settings-cheat-toggle').checked = settings.cheatEnabled;
+    document.getElementById('settings-cheat-points').value = settings.cheatPoints;
+    document.getElementById('settings-cheat-points-row').style.display =
+      settings.cheatEnabled ? 'flex' : 'none';
+    document.getElementById('modal-settings').classList.add('open');
+  }
+
+  function hideSettingsModal() {
+    document.getElementById('modal-settings').classList.remove('open');
+  }
+
   // ── Confirm modal ────────────────────────────────────
   function showConfirmModal() {
     document.getElementById('modal-confirm').classList.add('open');
@@ -1440,10 +1565,55 @@
 
   // ── Event Binding ────────────────────────────────────
   function bindEvents() {
-    // Theme toggle
-    document.querySelectorAll('.btn-theme-toggle').forEach(btn =>
-      btn.addEventListener('click', toggleTheme)
+    // Settings button
+    document.querySelectorAll('.btn-settings').forEach(btn =>
+      btn.addEventListener('click', openSettingsModal)
     );
+
+    // Theme buttons (inside settings modal)
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.dataset.themeVal;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = val === 'dark' || (val === 'auto' && prefersDark);
+        applyTheme(dark);
+        settings.theme = val;
+        saveSettings();
+        document.querySelectorAll('.theme-btn').forEach(b =>
+          b.classList.toggle('active', b.dataset.themeVal === val)
+        );
+      });
+    });
+
+    // Color swatches
+    document.querySelectorAll('.color-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyColor(btn.dataset.colorVal);
+        document.querySelectorAll('.color-swatch').forEach(b =>
+          b.classList.toggle('active', b.dataset.colorVal === settings.color)
+        );
+      });
+    });
+
+    // Cheat toggle
+    document.getElementById('settings-cheat-toggle').addEventListener('change', e => {
+      settings.cheatEnabled = e.target.checked;
+      document.getElementById('settings-cheat-points-row').style.display =
+        settings.cheatEnabled ? 'flex' : 'none';
+      saveSettings();
+    });
+
+    // Cheat points
+    document.getElementById('settings-cheat-points').addEventListener('change', e => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val > 0) { settings.cheatPoints = val; saveSettings(); }
+    });
+
+    // Settings modal close
+    document.getElementById('modal-settings-close').addEventListener('click', hideSettingsModal);
+    document.getElementById('modal-settings').addEventListener('click', e => {
+      if (e.target === e.currentTarget) hideSettingsModal();
+    });
 
     // Setup: stepper
     document.getElementById('players-dec').addEventListener('click', () => {
@@ -1500,6 +1670,7 @@
       if (e.key === 'Escape') {
         hideEditModal();
         hideConfirmModal();
+        hideSettingsModal();
         document.getElementById('modal-winner').classList.remove('open');
       }
     });
