@@ -51,6 +51,7 @@ En selvinneholdt HTML-app (ingen avhengigheter, ingen byggsteg) for å registrer
 | v2.0.0 | Spillhistorikk og statistikk per spiller |
 | v2.1.0 | Mørkt tema med automatisk systemdeteksjon og manuell toggle |
 | v2.2.0 | Fjernet nivå fra poengoversikten, tydeligere totalpoeng og poenginndata |
+| v2.3.0 | Klikkbare spilldetaljer i historikk, deaktiverte dobbelttrykk-zoom |
 
 ## Bruk
 

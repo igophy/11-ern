@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <title>11-ern</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
 
     :root {
       --bg: #F5F0E8;
@@ -592,8 +592,37 @@
       display: flex;
       flex-direction: column;
       gap: 0.15rem;
+      cursor: pointer;
     }
     .past-game-row:last-child { border-bottom: none; }
+    .past-game-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .past-game-arrow {
+      color: var(--text-muted);
+      font-size: 1rem;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+    .past-game-row.open .past-game-arrow { transform: rotate(90deg); }
+    .past-game-detail {
+      display: none;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .past-game-row.open .past-game-detail { display: block; }
+    .past-game-score-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      padding: 0.15rem 0;
+      color: var(--text);
+    }
     .past-game-meta { color: var(--text-muted); font-size: 0.78rem; }
     .past-game-winner { color: var(--primary); font-weight: 600; }
 
@@ -765,7 +794,7 @@
 
 <script>
   // ── Constants ───────────────────────────────────────
-  const VERSION = '2.2.0';
+  const VERSION = '2.3.0';
   const STORAGE_KEY = '11ern_state';
   const HISTORY_KEY = '11ern_history';
   const THEME_KEY = '11ern_theme';
@@ -984,9 +1013,38 @@
     [...history].reverse().slice(0, 5).forEach(game => {
       const row = document.createElement('div');
       row.className = 'past-game-row';
-      row.innerHTML = `
-        <div><span class="past-game-winner">🏆 ${game.winners.map(escHtml).join(' &amp; ')}</span> — ${game.players.map(escHtml).join(', ')}</div>
-        <div class="past-game-meta">${escHtml(game.date)} · ${game.rounds} runder</div>`;
+
+      const header = document.createElement('div');
+      header.className = 'past-game-row-header';
+      const headerLeft = document.createElement('div');
+      headerLeft.innerHTML = `<span class="past-game-winner">🏆 ${game.winners.map(escHtml).join(' &amp; ')}</span> — ${game.players.map(escHtml).join(', ')}`;
+      const arrow = document.createElement('span');
+      arrow.className = 'past-game-arrow';
+      arrow.textContent = '›';
+      header.appendChild(headerLeft);
+      header.appendChild(arrow);
+
+      const meta = document.createElement('div');
+      meta.className = 'past-game-meta';
+      meta.textContent = `${game.date} · ${game.rounds} runder`;
+
+      const detail = document.createElement('div');
+      detail.className = 'past-game-detail';
+      game.players
+        .map((name, i) => ({ name, score: game.finalScores[i] ?? 0 }))
+        .sort((a, b) => a.score - b.score)
+        .forEach(({ name, score }) => {
+          const line = document.createElement('div');
+          line.className = 'past-game-score-line';
+          const isWinner = game.winners.includes(name);
+          line.innerHTML = `<span>${escHtml(name)}</span><span>${score} poeng${isWinner ? ' 🏆' : ''}</span>`;
+          detail.appendChild(line);
+        });
+
+      row.appendChild(header);
+      row.appendChild(meta);
+      row.appendChild(detail);
+      row.addEventListener('click', () => row.classList.toggle('open'));
       recentList.appendChild(row);
     });
     content.appendChild(recentList);
