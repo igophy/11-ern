@@ -54,6 +54,10 @@
         --text-muted: #8A8A7A;
         --border: #2E3E2E;
       }
+      :root:not([data-theme="light"])[data-color="blue"]   { --primary: #2980B9; --primary-dark: #1A5276; }
+      :root:not([data-theme="light"])[data-color="purple"] { --primary: #8E44AD; --primary-dark: #6C3483; }
+      :root:not([data-theme="light"])[data-color="teal"]   { --primary: #17A589; --primary-dark: #0E6655; }
+      :root:not([data-theme="light"])[data-color="red"]    { --primary: #C0392B; --primary-dark: #922B21; }
     }
 
     html, body {
@@ -697,6 +701,13 @@
     }
     .settings-toggle-label input { width: 18px; height: 18px; accent-color: var(--primary); }
 
+    /* ── Changelog modal ────────────────────── */
+    .changelog-version { font-weight: 700; font-size: 0.8rem; color: var(--text-muted);
+                         text-transform: uppercase; margin: 0.75rem 0 0; }
+    .changelog-version:first-child { margin-top: 0; }
+    .changelog-list { margin: 0.25rem 0 0 1.25rem; padding: 0; list-style: disc; font-size: 0.9rem; }
+    .changelog-list li { margin-bottom: 0.2rem; }
+
     /* ── Update banner ──────────────────────── */
     #update-banner {
       position: fixed;
@@ -836,6 +847,17 @@
   </div>
 </div>
 
+<!-- Changelog modal -->
+<div class="modal-overlay" id="modal-changelog" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <p style="font-weight:700;font-size:1.1rem">Hva er nytt</p>
+    <div id="modal-changelog-body"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="modal-changelog-close">Forstått</button>
+    </div>
+  </div>
+</div>
+
 <!-- Settings modal -->
 <div class="modal-overlay" id="modal-settings" role="dialog" aria-modal="true">
   <div class="modal-box">
@@ -882,10 +904,23 @@
 
 <script>
   // ── Constants ───────────────────────────────────────
-  const VERSION = '2.4.0';
+  const VERSION = '2.5.0';
   const STORAGE_KEY = '11ern_state';
   const HISTORY_KEY = '11ern_history';
   const SETTINGS_KEY = '11ern_settings';
+  const LAST_VERSION_KEY = '11ern_last_version';
+
+  const CHANGELOG = {
+    '2.1.0': ['Historikk: siste 5 spill lagres og vises i statistikk'],
+    '2.2.0': ['Rediger tidligere runder direkte fra oversikten',
+               'Bekreftelsesdialog ved nytt spill'],
+    '2.3.0': ['Klikkbare spilldetaljer i historikk',
+               'Deaktiverte dobbelttrykk-zoom på mobil'],
+    '2.4.0': ['Innstillingsknapp (⚙️) med fargevalg og temavalg',
+               'Juksregistrering: aktiver straffepoeng per runde'],
+    '2.5.0': ['Fargevalg fungerer nå i mørk modus',
+               'Oppdateringsboks viser hva som er nytt etter oppdatering'],
+  };
 
   // ── Settings ─────────────────────────────────────────
   function loadSettings() {
@@ -1665,6 +1700,15 @@
       showConfirmModal();
     });
 
+    // Changelog close
+    document.getElementById('modal-changelog-close').addEventListener('click', () =>
+      document.getElementById('modal-changelog').classList.remove('open')
+    );
+    document.getElementById('modal-changelog').addEventListener('click', e => {
+      if (e.target === e.currentTarget)
+        document.getElementById('modal-changelog').classList.remove('open');
+    });
+
     // Escape closes any open modal
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
@@ -1672,8 +1716,50 @@
         hideConfirmModal();
         hideSettingsModal();
         document.getElementById('modal-winner').classList.remove('open');
+        document.getElementById('modal-changelog').classList.remove('open');
       }
     });
+  }
+
+  // ── Changelog ────────────────────────────────────────
+  function compareVersions(a, b) {
+    const pa = a.split('.').map(Number);
+    const pb = b.split('.').map(Number);
+    for (let i = 0; i < 3; i++) {
+      if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) - (pb[i] ?? 0);
+    }
+    return 0;
+  }
+
+  function openChangelogModal(entries) {
+    const body = document.getElementById('modal-changelog-body');
+    body.innerHTML = '';
+    entries.forEach(([ver, items]) => {
+      const vLabel = document.createElement('p');
+      vLabel.className = 'changelog-version';
+      vLabel.textContent = `v${ver}`;
+      const list = document.createElement('ul');
+      list.className = 'changelog-list';
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        list.appendChild(li);
+      });
+      body.appendChild(vLabel);
+      body.appendChild(list);
+    });
+    document.getElementById('modal-changelog').classList.add('open');
+  }
+
+  function checkChangelog() {
+    const lastSeen = localStorage.getItem(LAST_VERSION_KEY);
+    if (!lastSeen) { localStorage.setItem(LAST_VERSION_KEY, VERSION); return; }
+    if (lastSeen === VERSION) return;
+    const entries = Object.entries(CHANGELOG)
+      .filter(([v]) => compareVersions(v, lastSeen) > 0 && compareVersions(v, VERSION) <= 0)
+      .sort((a, b) => compareVersions(a[0], b[0]));
+    localStorage.setItem(LAST_VERSION_KEY, VERSION);
+    if (entries.length > 0) openChangelogModal(entries);
   }
 
   // ── Init ─────────────────────────────────────────────
@@ -1693,6 +1779,7 @@
     } else {
       showView('setup');
     }
+    checkChangelog();
   }
 
   if ('serviceWorker' in navigator) {
