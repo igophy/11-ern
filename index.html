@@ -655,7 +655,7 @@
     .btn-clear-history:hover { background: #fdf0f0; }
     [data-theme="dark"] .btn-clear-history:hover { background: #2a1a1a; }
 
-    /* ── Settings button ────────────────────── */
+    /* ── Header icon buttons ─────────────────── */
     .btn-settings {
       background: transparent;
       color: #fff;
@@ -667,6 +667,37 @@
       line-height: 1;
     }
     .btn-settings:hover { background: rgba(255,255,255,0.15); }
+    #btn-rules { font-size: 1rem; font-weight: 700; border: 2px solid rgba(255,255,255,0.5); }
+    #btn-rules:hover { border-color: #fff; }
+
+    /* ── Rules modal ─────────────────────────── */
+    .rules-section { display: flex; flex-direction: column; gap: 0.35rem; }
+    .rules-section + .rules-section { margin-top: 0.75rem; }
+    .rules-heading {
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .rules-text { font-size: 0.9rem; margin: 0; line-height: 1.55; }
+    .rules-list { margin: 0; padding: 0 0 0 1.25rem; font-size: 0.9rem; line-height: 1.55; }
+    .rules-list li { margin-bottom: 0.15rem; }
+    .rules-score-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.2rem 1rem;
+      font-size: 0.9rem;
+    }
+    .rules-score-grid .score-val { font-weight: 700; text-align: right; color: var(--primary); }
+    .rules-levels-grid {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.2rem 0.75rem;
+      font-size: 0.85rem;
+    }
+    .rules-levels-grid .lvl-n { font-weight: 700; color: var(--primary); text-align: right; }
+    .rules-levels-grid .lvl-trump { color: var(--text-muted); }
 
     /* ── Settings modal ─────────────────────── */
     .settings-section { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -752,6 +783,7 @@
         <p class="subtitle">Nytt spill</p>
       </div>
       <div class="header-right">
+        <button class="btn-settings" id="btn-rules" aria-label="Regler">?</button>
         <button class="btn-settings" aria-label="Innstillinger">⚙️</button>
         <span class="version-badge" id="version-display"></span>
       </div>
@@ -847,6 +879,60 @@
   </div>
 </div>
 
+<!-- Rules modal -->
+<div class="modal-overlay" id="modal-rules" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <p style="font-weight:700;font-size:1.1rem">Slik spiller du 11-ern</p>
+
+    <div class="rules-section">
+      <p class="rules-heading">Oppsett</p>
+      <ul class="rules-list">
+        <li>Hver spiller får 11 kort. Resten legges i en bunke på bordet.</li>
+        <li>Den eldste spilleren starter.</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <p class="rules-heading">En runde</p>
+      <ul class="rules-list">
+        <li>Trekk et kort fra bunken <em>eller</em> ta øverste kort fra kastbunken.</li>
+        <li>Avslutt turen ved å legge ut ett kort.</li>
+        <li>Målet er å legge ut kombinasjonen for ditt nåværende nivå og bli kvitt alle kortene på hånd.</li>
+      </ul>
+    </div>
+
+    <div class="rules-section">
+      <p class="rules-heading">Trumf</p>
+      <p class="rules-text">Kortene <strong>2</strong> og <strong>3</strong> er trumfkort og kan brukes som jokere i kombinasjoner.</p>
+    </div>
+
+    <div class="rules-section">
+      <p class="rules-heading">Nivåer</p>
+      <div class="rules-levels-grid" id="rules-levels-grid"></div>
+    </div>
+
+    <div class="rules-section">
+      <p class="rules-heading">Poengberegning</p>
+      <p class="rules-text" style="margin-bottom:0.35rem">Når noen fullfører en runde, teller de øvrige kortene på hånd:</p>
+      <div class="rules-score-grid">
+        <span>2 og 3 (trumf)</span><span class="score-val">20 poeng</span>
+        <span>Ess</span><span class="score-val">15 poeng</span>
+        <span>10 – Konge</span><span class="score-val">10 poeng</span>
+        <span>4 – 9</span><span class="score-val">5 poeng</span>
+      </div>
+    </div>
+
+    <div class="rules-section">
+      <p class="rules-heading">Seier</p>
+      <p class="rules-text">Den som fullfører alle 11 nivåene først vinner. Avslutter man spillet tidlig, vinner spilleren med høyest nivå — ved likt nivå vinner den med færrest poeng.</p>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-primary" id="modal-rules-close">Skjønt</button>
+    </div>
+  </div>
+</div>
+
 <!-- Changelog modal -->
 <div class="modal-overlay" id="modal-changelog" role="dialog" aria-modal="true">
   <div class="modal-box">
@@ -904,7 +990,7 @@
 
 <script>
   // ── Constants ───────────────────────────────────────
-  const VERSION = '2.5.0';
+  const VERSION = '2.6.0';
   const STORAGE_KEY = '11ern_state';
   const HISTORY_KEY = '11ern_history';
   const SETTINGS_KEY = '11ern_settings';
@@ -920,6 +1006,7 @@
                'Juksregistrering: aktiver straffepoeng per runde'],
     '2.5.0': ['Fargevalg fungerer nå i mørk modus',
                'Oppdateringsboks viser hva som er nytt etter oppdatering'],
+    '2.6.0': ['Regelkapp: trykk ? på startsiden for å lese spillereglene'],
   };
 
   // ── Settings ─────────────────────────────────────────
@@ -1569,6 +1656,31 @@
     document.getElementById('modal-winner').classList.add('open');
   }
 
+  // ── Rules modal ──────────────────────────────────────
+  function openRulesModal() {
+    const grid = document.getElementById('rules-levels-grid');
+    if (!grid.hasChildNodes()) {
+      LEVELS.forEach(lvl => {
+        const n = document.createElement('span');
+        n.className = 'lvl-n';
+        n.textContent = lvl.n;
+        const desc = document.createElement('span');
+        desc.textContent = lvl.desc;
+        const trump = document.createElement('span');
+        trump.className = 'lvl-trump';
+        trump.textContent = lvl.trump > 0 ? `${lvl.trump} trumf` : '';
+        grid.appendChild(n);
+        grid.appendChild(desc);
+        grid.appendChild(trump);
+      });
+    }
+    document.getElementById('modal-rules').classList.add('open');
+  }
+
+  function hideRulesModal() {
+    document.getElementById('modal-rules').classList.remove('open');
+  }
+
   // ── Settings modal ───────────────────────────────────
   function openSettingsModal() {
     document.querySelectorAll('.theme-btn').forEach(btn =>
@@ -1600,8 +1712,15 @@
 
   // ── Event Binding ────────────────────────────────────
   function bindEvents() {
-    // Settings button
-    document.querySelectorAll('.btn-settings').forEach(btn =>
+    // Rules button
+    document.getElementById('btn-rules').addEventListener('click', openRulesModal);
+    document.getElementById('modal-rules-close').addEventListener('click', hideRulesModal);
+    document.getElementById('modal-rules').addEventListener('click', e => {
+      if (e.target === e.currentTarget) hideRulesModal();
+    });
+
+    // Settings button (excludes the rules button which also has .btn-settings class)
+    document.querySelectorAll('.btn-settings:not(#btn-rules)').forEach(btn =>
       btn.addEventListener('click', openSettingsModal)
     );
 
@@ -1715,6 +1834,7 @@
         hideEditModal();
         hideConfirmModal();
         hideSettingsModal();
+        hideRulesModal();
         document.getElementById('modal-winner').classList.remove('open');
         document.getElementById('modal-changelog').classList.remove('open');
       }

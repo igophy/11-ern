@@ -54,6 +54,7 @@ En selvinneholdt HTML-app (ingen avhengigheter, ingen byggsteg) for å registrer
 | v2.3.0 | Klikkbare spilldetaljer i historikk, deaktiverte dobbelttrykk-zoom |
 | v2.4.0 | Innstillingsmodal med fargevalg, tema og juksregistrering |
 | v2.5.0 | Fargefiks i mørk modus, oppdateringsboks med endringslogg |
+| v2.6.0 | Regelkapp: ?-knapp åpner komplett spillregler-modal |
 
 ## Bruk
 
