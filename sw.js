@@ -5,11 +5,7 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(ASSETS))
   );
-  // Ikke kall skipWaiting() — ny SW venter til brukeren godtar oppdateringen
-});
-
-self.addEventListener('message', e => {
-  if (e.data === 'skipWaiting') self.skipWaiting();
+  self.skipWaiting(); // Ta over umiddelbart — reload skjer via controllerchange i appen
 });
 
 self.addEventListener('activate', e => {
